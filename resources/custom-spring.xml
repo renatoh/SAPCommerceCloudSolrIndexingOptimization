@@ -1,0 +1,26 @@
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	   xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd  http://www.springframework.org/schema/util 
+                      http://www.springframework.org/schema/util/spring-util.xsd">	
+		
+	<alias name="customIndexer" alias="indexer" />
+	<bean id="customIndexer" class="custom.solrfacetsearch.indexer.imp.CustomIndexer" parent="defaultIndexer" >
+		<constructor-arg name="contextProvidersByType">
+			<util:map map-class="java.util.HashMap">
+					<entry key="Product" value-ref="customProductDocumentContextProvider" />
+			</util:map>
+		</constructor-arg>
+	</bean>
+    
+	<bean id="customProductDocumentContextProvider" class="custom.solrfacetsearch.indexer.imp.CustomProductDocumentContextProvider">
+		<constructor-arg name="priceService" ref="priceService"/>
+	</bean>
+	
+	<bean id="customPriceAttributesValueResolver" parent="abstractValueResolver" class="custom.solrfacetsearch.resolver.product.imp.CustomPriceAttributesValueResolver">
+		<property name="sessionService" ref="sessionService"/>
+	</bean>
+
+</beans>
