@@ -1,5 +1,6 @@
 Work in Progress!!
 
+
 Supercharging Solr-Indexing in SAP Commerce Cloud aka Hybris
 
 Many SAP Commerce Cloud (called SAP CC) deployments are building the Solr product index from scratch every 24h in order to have reflect the latest prices, stock levels, etc in the product search. These job often run for hours and are rebuilding  indexes with 100k+ product documents in it.
@@ -13,5 +14,29 @@ Here quick example
 
 We want to add these three price-fields price fields - standardPrice, salesPrice, netPrice - to the product document. The way  to do it within SAP CC is to implement 3 independent ValueResolver, and each ValueResolver has to fetch the price rows of the product leading to redundant queries to the database.
 By extending the out of the box DefaultIndexer and introducing a few custom class and overarching context across all ValueResolver execution for a given product can be introduces which basically eliminates all the expensive repeated fetching of the same data from the database. 
+
+
+# Technical Implemenntation
+
+## Introducing a Context
+
+First we extend DefaultSolrInputDocument so that it can hold a context, which is basically a HashMap:
+https://github.com/renatoh/SAPCommerceCloudSolrIndexingOptimization/blob/main/src/custom/solrfacetsearch/indexer/imp/CustomSolrInputDocument.java
+
+Next we introduce a generic way how attributes can be added to the context per type, here for the ProductModel since we index products. 
+Generic Interface:
+https://github.com/renatoh/SAPCommerceCloudSolrIndexingOptimization/blob/main/src/custom/solrfacetsearch/indexer/SolrDocumentContextProvider.java
+Implementation for ProductModel:
+https://github.com/renatoh/SAPCommerceCloudSolrIndexingOptimization/blob/main/src/custom/solrfacetsearch/indexer/imp/CustomProductDocumentContextProvider.java
+
+
+Then we have to extend the DefaultIndexer to make sure your CustomSolrInputDocument is utilized and the context is loaded with the attribute:
+https://github.com/renatoh/SAPCommerceCloudSolrIndexingOptimization/blob/main/src/custom/solrfacetsearch/indexer/imp/CustomIndexer.java
+
+
+
+
+
+
 
 On the GitHub-repo linked below I explain the technical implementation and provide all the code required for it.
